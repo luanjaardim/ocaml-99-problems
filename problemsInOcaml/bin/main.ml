@@ -20,7 +20,9 @@ let main () =
     Funcs.flatten [ One "a"; Many [ One "b"; Many [ One "c"; One "d" ]; One "e" ] ]
     = [ "a"; "b"; "c"; "d"; "e" ]);
   (* Problem 8 *)
-  let longList = [ "a"; "a"; "a"; "a"; "b"; "c"; "c"; "a"; "a"; "d"; "e"; "e"; "e"; "e" ] in
+  let longList =
+    [ "a"; "a"; "a"; "a"; "b"; "c"; "c"; "a"; "a"; "d"; "e"; "e"; "e"; "e" ]
+  in
   assert (Funcs.compress longList = [ "a"; "b"; "c"; "a"; "d"; "e" ]);
   (* Problem 9 *)
   assert (
@@ -49,7 +51,8 @@ let main () =
     Funcs.dup_elems [ "a"; "b"; "c"; "c"; "d" ]
     = [ "a"; "a"; "b"; "b"; "c"; "c"; "c"; "c"; "d"; "d" ]);
   (* Problem 15 *)
-  assert (Funcs.replicate [ "a"; "b"; "c" ] 3 = [ "a"; "a"; "a"; "b"; "b"; "b"; "c"; "c"; "c" ]);
+  assert (
+    Funcs.replicate [ "a"; "b"; "c" ] 3 = [ "a"; "a"; "a"; "b"; "b"; "b"; "c"; "c"; "c" ]);
   (* Problem 16 *)
   assert (
     Funcs.drop_nth [ "a"; "b"; "c"; "d"; "e"; "f"; "g"; "h"; "i"; "j" ] 3
@@ -58,6 +61,37 @@ let main () =
   assert (
     Funcs.split_at_pos [ "a"; "b"; "c"; "d"; "e"; "f"; "g"; "h"; "i"; "j" ] 3
     = ([ "a"; "b"; "c" ], [ "d"; "e"; "f"; "g"; "h"; "i"; "j" ]));
-  assert (Funcs.split_at_pos [ "a"; "b"; "c"; "d" ] 5 = ([ "a"; "b"; "c"; "d" ], []))
+  assert (Funcs.split_at_pos [ "a"; "b"; "c"; "d" ] 5 = ([ "a"; "b"; "c"; "d" ], []));
+  (* Problem 18 *)
+  assert (
+    Funcs.slice_from_list [ "a"; "b"; "c"; "d"; "e"; "f"; "g"; "h"; "i"; "j" ] 2 6
+    = [ "c"; "d"; "e"; "f"; "g" ]);
+  (* Problem 19 *)
+  assert (
+    Funcs.rotate_left [ "a"; "b"; "c"; "d"; "e"; "f"; "g"; "h" ] 3
+    = [ "d"; "e"; "f"; "g"; "h"; "a"; "b"; "c" ]);
+  assert (
+    Funcs.rotate_left [ "a"; "b"; "c"; "d"; "e"; "f"; "g"; "h" ] 11
+    = [ "d"; "e"; "f"; "g"; "h"; "a"; "b"; "c" ]);
+  assert (
+    Funcs.rotate_left [ "a"; "b"; "c"; "d"; "e"; "f"; "g"; "h" ] (-2)
+    = [ "g"; "h"; "a"; "b"; "c"; "d"; "e"; "f" ]);
+  (* Problem 20 *)
+  assert (Funcs.remove_at 1 [ "a"; "b"; "c"; "d" ] = [ "a"; "c"; "d" ]);
+  (* Problem 21 *)
+  assert (Funcs.insert_at "alfa" 1 [ "a"; "b"; "c"; "d" ] = [ "a"; "alfa"; "b"; "c"; "d" ]);
+  assert (Funcs.insert_at "alfa" 3 [ "a"; "b"; "c"; "d" ] = [ "a"; "b"; "c"; "alfa"; "d" ]);
+  assert (Funcs.insert_at "alfa" 4 [ "a"; "b"; "c"; "d" ] = [ "a"; "b"; "c"; "d"; "alfa" ]);
+  (* Problem 22 *)
+  assert (Funcs.range 4 9 = [ 4; 5; 6; 7; 8; 9 ]);
+  assert (Funcs.range 9 4 = [ 9; 8; 7; 6; 5; 4 ]);
+  (* Problem 23 *)
+  (* WARNING: This assert can fail if the pseudorandom values change *)
+  assert (
+    Funcs.extract_randomly [ "a"; "b"; "c"; "d"; "e"; "f"; "g"; "h" ] 3
+    = [ "c"; "a"; "b" ]);
+  (* Problem 24 *)
+  (* WARNING: This assert can fail if the pseudorandom values change *)
+  assert (Funcs.lotto_select ~qtd:5 ~end_bound:10 = [ 6; 4; 8; 1; 10 ])
 in
 main ()

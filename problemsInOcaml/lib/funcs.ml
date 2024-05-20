@@ -119,4 +119,57 @@ let split_at_pos l pos =
   aux pos [] l
 ;;
 
-let sla = 1
+let slice_from_list l start last =
+  let len = last + 1 - start in
+  if len < 0
+  then raise @@ Failure "The start position cannot be bigger than the last position"
+  else (
+    let _, after_start = split_at_pos l start in
+    let slice, _ = split_at_pos after_start len in
+    slice)
+;;
+
+let rotate_left l qtd_rot =
+  let len = List.length l in
+  let rot = qtd_rot mod len in
+  let split_at = if rot < 0 then len + rot else rot in
+  let left, right = split_at_pos l split_at in
+  right @ left
+;;
+
+let remove_at pos l =
+  let rec aux cnt acc = function
+    | [] -> List.rev acc
+    | h :: tl -> if cnt = pos then List.rev acc @ tl else aux (cnt + 1) (h :: acc) tl
+  in
+  aux 0 [] l
+;;
+
+let insert_at value pos l =
+  let rec aux cnt acc = function
+    | [] -> List.rev @@ if cnt <= pos then value :: acc else acc
+    | h :: tl as li ->
+      if cnt = pos then (List.rev @@ (value :: acc)) @ li else aux (cnt + 1) (h :: acc) tl
+  in
+  aux 0 [] l
+;;
+
+let range start last =
+  let big, small, op = if last > start then last, start, ( + ) else start, last, ( - ) in
+  let size = big - small + 1 in
+  List.init size (fun x -> op start x)
+;;
+
+let extract_randomly l qtd =
+  let qtd_to_extract = min qtd @@ List.length l in
+  let rec aux cnt acc rest =
+    if cnt < qtd_to_extract
+    then (
+      let to_remove = List.length rest |> Random.int in
+      aux (cnt + 1) (List.nth rest to_remove :: acc) (remove_at to_remove rest))
+    else List.rev acc
+  in
+  aux 0 [] l
+;;
+
+let lotto_select ~qtd ~end_bound = extract_randomly (range 1 end_bound) qtd
