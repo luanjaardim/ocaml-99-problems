@@ -173,3 +173,62 @@ let extract_randomly l qtd =
 ;;
 
 let lotto_select ~qtd ~end_bound = extract_randomly (range 1 end_bound) qtd
+let permutation l = extract_randomly l @@ List.length l
+
+let rec combination k l =
+  if k <= 0
+  then [ [] ]
+  else (
+    match l with
+    | [] -> []
+    | h :: tl ->
+      let withoutCur = combination k tl in
+      let withCur = List.map (fun x -> h :: x) @@ combination (k - 1) tl in
+      withCur @ withoutCur)
+;;
+
+(* TODO: Try to solve this with map instead of List.iter and ref []*)
+let group l groups =
+  let rec aux remaining_mem = function
+    | [] -> [ [] ]
+    | h :: tl ->
+      let new_groups = combination h remaining_mem in
+      let res = ref [] in
+      List.iter
+        (fun choosed_g ->
+          let rest =
+            List.filter (fun mem -> not @@ List.mem mem choosed_g) remaining_mem
+          in
+          let returned_groups = aux rest tl in
+          List.iter (fun new_g -> res := (choosed_g :: new_g) :: !res) returned_groups)
+        new_groups;
+      !res
+  in
+  aux l groups
+;;
+
+let rec sort ?(cmp = fun (x : 'a) (y : 'a) -> x > y) (l : 'a list) =
+  let rec insert h = function
+    | [] -> [ h ]
+    | g :: tl as li -> if cmp h g then h :: li else g :: insert h tl
+  in
+  let rec aux acc = function
+    | [] -> List.rev acc
+    | h :: tl -> aux (insert h acc) tl
+  in
+  aux [] l
+
+and sort_list_length l = sort ~cmp:(fun x y -> List.length x > List.length y) l
+
+and sort_list_frequency l =
+  let freq_of_size li =
+    let size = List.length li in
+    List.fold_left (fun acc x -> if List.length x = size then acc + 1 else acc) 0 l
+  in
+  sort
+    ~cmp:(fun x y ->
+      let fx = freq_of_size x in
+      let fy = freq_of_size y in
+      if fx = fy then List.length x < List.length y else fx > fy)
+    l
+;;

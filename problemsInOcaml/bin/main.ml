@@ -92,6 +92,72 @@ let main () =
     = [ "c"; "a"; "b" ]);
   (* Problem 24 *)
   (* WARNING: This assert can fail if the pseudorandom values change *)
-  assert (Funcs.lotto_select ~qtd:5 ~end_bound:10 = [ 6; 4; 8; 1; 10 ])
+  assert (Funcs.lotto_select ~qtd:5 ~end_bound:10 = [ 6; 4; 8; 1; 10 ]);
+  (* Problem 25 *)
+  assert (
+    Funcs.permutation [ "a"; "b"; "c"; "d"; "e"; "f" ] = [ "f"; "e"; "c"; "a"; "b"; "d" ]);
+  (* Problem 26 *)
+  assert (
+    Funcs.combination 2 [ "a"; "b"; "c"; "d" ]
+    = [ [ "a"; "b" ]
+      ; [ "a"; "c" ]
+      ; [ "a"; "d" ]
+      ; [ "b"; "c" ]
+      ; [ "b"; "d" ]
+      ; [ "c"; "d" ]
+      ]);
+  (* Problem 27 *)
+  assert (
+    Funcs.group [ "a"; "b"; "c"; "d" ] [ 2; 1 ]
+    = [ [ [ "c"; "d" ]; [ "a" ] ]
+      ; [ [ "c"; "d" ]; [ "b" ] ]
+      ; [ [ "b"; "d" ]; [ "a" ] ]
+      ; [ [ "b"; "d" ]; [ "c" ] ]
+      ; [ [ "b"; "c" ]; [ "a" ] ]
+      ; [ [ "b"; "c" ]; [ "d" ] ]
+      ; [ [ "a"; "d" ]; [ "b" ] ]
+      ; [ [ "a"; "d" ]; [ "c" ] ]
+      ; [ [ "a"; "c" ]; [ "b" ] ]
+      ; [ [ "a"; "c" ]; [ "d" ] ]
+      ; [ [ "a"; "b" ]; [ "c" ] ]
+      ; [ [ "a"; "b" ]; [ "d" ] ]
+      ]);
+  (* Problem 28 *)
+  assert (
+    Funcs.sort_list_length
+      [ [ "a"; "b"; "c" ]
+      ; [ "d"; "e" ]
+      ; [ "f"; "g"; "h" ]
+      ; [ "d"; "e" ]
+      ; [ "i"; "j"; "k"; "l" ]
+      ; [ "m"; "n" ]
+      ; [ "o" ]
+      ]
+    = [ [ "o" ]
+      ; [ "m"; "n" ]
+      ; [ "d"; "e" ]
+      ; [ "d"; "e" ]
+      ; [ "f"; "g"; "h" ]
+      ; [ "a"; "b"; "c" ]
+      ; [ "i"; "j"; "k"; "l" ]
+      ]);
+  assert (
+    Funcs.sort_list_frequency
+      [ [ "a"; "b"; "c" ]
+      ; [ "d"; "e" ]
+      ; [ "f"; "g"; "h" ]
+      ; [ "d"; "e" ]
+      ; [ "i"; "j"; "k"; "l" ]
+      ; [ "m"; "n" ]
+      ; [ "o" ]
+      ]
+    = [ [ "i"; "j"; "k"; "l" ]
+      ; [ "o" ]
+      ; [ "f"; "g"; "h" ]
+      ; [ "a"; "b"; "c" ]
+      ; [ "m"; "n" ]
+      ; [ "d"; "e" ]
+      ; [ "d"; "e" ]
+      ])
 in
 main ()
