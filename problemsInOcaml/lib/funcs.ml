@@ -232,3 +232,98 @@ and sort_list_frequency l =
       if fx = fy then List.length x < List.length y else fx > fy)
     l
 ;;
+
+let is_prime n =
+  let n = abs n in
+  let rec aux cur = cur * cur > n || (n mod cur <> 0 && aux (cur + 1)) in
+  n <> 1 && aux 2
+;;
+
+let gcd m n =
+  let rec aux m n = if n = 0 then m else aux n (m mod n) in
+  aux (max m n) (min m n)
+;;
+
+let coprime m n = 1 = gcd m n
+
+let phi n =
+  let rec aux cur cnt =
+    if cur < n then aux (cur + 1) (cnt + if coprime n cur then 1 else 0) else cnt
+  in
+  if n < 1 then 0 else aux 2 1
+;;
+
+let factors n =
+  let rec aux acc cur_div num =
+    if num = 1
+    then List.rev acc
+    else if num mod cur_div = 0
+    then aux (cur_div :: acc) cur_div (num / cur_div)
+    else aux acc (cur_div + 1) num
+  in
+  aux [] 2 n
+;;
+
+let factors_and_qtd n =
+  let rec aux acc cur_div num =
+    if num = 1
+    then List.rev acc
+    else if num mod cur_div = 0
+            && (not (List.is_empty acc))
+            && List.hd acc |> fst = cur_div
+    then (
+      let _, cnt = List.hd acc in
+      aux ((cur_div, cnt + 1) :: List.tl acc) cur_div (num / cur_div))
+    else if num mod cur_div = 0
+    then aux ((cur_div, 1) :: acc) cur_div (num / cur_div)
+    else aux acc (cur_div + 1) num
+  in
+  aux [] 2 n
+;;
+
+let phi_improved n =
+  let rec aux acc = function
+    | [] -> acc
+    | (p, m) :: tl ->
+      let p, m = float_of_int p, float_of_int m in
+      aux (acc *. ((p -. 1.) *. (p ** (m -. 1.)))) tl
+  in
+  factors_and_qtd n |> aux 1. |> int_of_float
+;;
+
+(*Function to measure the execution time of some function f*)
+let timeit f a =
+  let t0 = Unix.gettimeofday () in
+  ignore (f a);
+  let t1 = Unix.gettimeofday () in
+  t1 -. t0
+;;
+
+let all_primes low high =
+  let rec aux acc cnt =
+    if cnt = high
+    then List.rev acc
+    else aux (if is_prime cnt then cnt :: acc else acc) (cnt + 1)
+  in
+  aux [] low
+;;
+
+let goldbach n =
+  let rec aux cur =
+    if is_prime cur && is_prime (n - cur) then cur, n - cur else aux (cur + 1)
+  in
+  if n mod 2 <> 0 || n < 2 then failwith "A number even positive number must be passsed";
+  aux 2
+;;
+
+let goldbach_list low high =
+  let rec aux acc cur =
+    if cur > high then List.rev acc else aux ((cur, goldbach cur) :: acc) (cur + 2)
+  in
+  aux [] @@ if low mod 2 <> 0 then low + 1 else low
+;;
+
+let goldbach_limit low high limit =
+  let l = goldbach_list low high in
+  List.filter (fun (_, (f, s)) -> f > limit && s > limit) l
+;;

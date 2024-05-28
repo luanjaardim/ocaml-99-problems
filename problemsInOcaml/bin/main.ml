@@ -158,6 +158,40 @@ let main () =
       ; [ "m"; "n" ]
       ; [ "d"; "e" ]
       ; [ "d"; "e" ]
-      ])
+      ]);
+  (* Problem 31 *)
+  assert (not (Funcs.is_prime 1));
+  assert (Funcs.is_prime 7);
+  assert (not (Funcs.is_prime 12));
+  (* Problem 32 *)
+  assert (Funcs.gcd 13 27 = 1);
+  assert (Funcs.gcd 20536 7826 = 2);
+  (* Problem 33 *)
+  assert (Funcs.coprime 13 27);
+  assert (not (Funcs.coprime 20536 7826));
+  (* Problem 34 *)
+  assert (Funcs.phi 10 = 4);
+  assert (Funcs.phi 13 = 12);
+  (* Problem 35 *)
+  assert (Funcs.factors 315 = [ 3; 3; 5; 7 ]);
+  (* Problem 36 *)
+  assert (Funcs.factors_and_qtd 315 = [ 3, 2; 5, 1; 7, 1 ]);
+  (* Problem 37 *)
+  assert (Funcs.phi_improved 10 = 4);
+  assert (Funcs.phi_improved 13 = 12);
+  (* Problem 38 *)
+  (*Just measuring the time between 2 algorithms*)
+  (* Problem 39 *)
+  assert (List.length @@ Funcs.all_primes 2 7920 = 1000);
+  (* Problem 40 *)
+  assert (Funcs.goldbach 28 = (5, 23));
+  (* Problem 41 *)
+  assert (
+    Funcs.goldbach_list 9 20
+    = [ 10, (3, 7); 12, (5, 7); 14, (3, 11); 16, (3, 13); 18, (5, 13); 20, (3, 17) ]);
+  assert (
+    Funcs.goldbach_limit 1 2000 50
+    = [ 992, (73, 919); 1382, (61, 1321); 1856, (67, 1789); 1928, (61, 1867) ])
+  (* Problem 42 *)
 in
 main ()
