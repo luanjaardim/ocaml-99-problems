@@ -1,2 +1,3 @@
 (library
- (name funcs))
+ (name funcs)
+ (libraries unix))

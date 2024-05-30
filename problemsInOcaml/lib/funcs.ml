@@ -327,3 +327,142 @@ let goldbach_limit low high limit =
   let l = goldbach_list low high in
   List.filter (fun (_, (f, s)) -> f > limit && s > limit) l
 ;;
+
+type bool_expr =
+  | Var of string
+  | Not of bool_expr
+  | And of bool_expr * bool_expr
+  | Or of bool_expr * bool_expr
+
+let table2 a b expr =
+  let rec aux (var_a : bool) (var_b : bool) (cur_expr : bool_expr) : bool =
+    let f = aux var_a var_b in
+    match cur_expr with
+    | Var v when v = a -> var_a
+    | Var v when v = b -> var_b
+    | Var v ->
+      failwith
+      @@ "Variable: "
+      ^ v
+      ^ " is not allowed, only variable 'a' and 'b' are valid."
+    | And (left, right) -> f left && f right
+    | Or (left, right) -> f left || f right
+    | Not inner -> not @@ f inner
+  in
+  List.map
+    (fun (x, y) ->
+      let res = aux x y expr in
+      x, y, res)
+    [ true, true; true, false; false, true; false, false ]
+;;
+
+let table vars expr =
+  let variables_values = List.length vars |> Hashtbl.create in
+  let results = ref [] in
+  let rec eval_expr expr : bool =
+    match expr with
+    | Var v ->
+      (match Hashtbl.find_opt variables_values v with
+       | None -> failwith @@ "The variable: " ^ v ^ " is unknown."
+       | Some v -> v)
+    | And (l, r) -> eval_expr l && eval_expr r
+    | Or (l, r) -> eval_expr l || eval_expr r
+    | Not inner -> not @@ eval_expr inner
+  in
+  let rec aux = function
+    | [] ->
+      results
+      := (Hashtbl.to_seq variables_values |> List.of_seq, eval_expr expr) :: !results
+    | h :: tl ->
+      Hashtbl.replace variables_values h false;
+      aux tl;
+      Hashtbl.replace variables_values h true;
+      aux tl
+  in
+  aux vars;
+  !results
+;;
+
+let gray n =
+  let limit = 2. ** float_of_int n |> int_of_float in
+  let convert_to_gray num = num lxor (num lsr 1) in
+  let bitsToString number =
+    let l = ref "" in
+    let number = ref number in
+    for _ = 1 to n do
+      l := (!number land 1 |> string_of_int) ^ !l;
+      number := !number lsr 1
+    done;
+    !l
+  in
+  let rec loop cur acc =
+    if cur = limit
+    then List.rev acc
+    else loop (cur + 1) ((convert_to_gray cur |> bitsToString) :: acc)
+  in
+  loop 0 []
+;;
+
+type ('a, 'b) huffman_node =
+  | Node of 'b * ('a, 'b) huffman_node * ('a, 'b) huffman_node
+  | Leaf of 'a * 'b
+
+let show_huffman_tree tree =
+  let rec aux = function
+    | Node (x, l, r) -> "Node(" ^ string_of_int x ^ ", " ^ aux l ^ ", " ^ aux r ^ ")"
+    | Leaf (x, y) -> "Leaf(" ^ string_of_int y ^ " , " ^ x ^ ")"
+  in
+  aux tree
+;;
+
+let getFrequency = function
+  | Node (x, _, _) -> x
+  | Leaf (_, x) -> x
+;;
+
+let huffman (fs : ('a * 'b) list) =
+  let fs_sorted =
+    let l =
+      List.sort (fun (_, x) (_, y) -> if x = y then 0 else if x > y then 1 else -1) fs
+    in
+    List.map (fun (x, y) -> Leaf (x, y)) l
+  in
+  let aux (fq : (string, int) huffman_node list) (sq : (string, int) huffman_node list) =
+    let rec get2least first_queue second_queue acc =
+      if List.length acc = 2
+      then first_queue, second_queue, acc
+      else (
+        match first_queue, second_queue with
+        | [], [] -> failwith "nothing to remove"
+        | [], h :: hs -> get2least [] hs (h :: acc)
+        | g :: gs, [] -> get2least gs [] (g :: acc)
+        | (g :: gs as gl), (h :: hs as hl) ->
+          if getFrequency g <= getFrequency h
+          then get2least gs hl (g :: acc)
+          else get2least gl hs (h :: acc))
+    in
+    let fq, sq, choosen = get2least fq sq [] in
+    let l, r = List.nth choosen 0, List.nth choosen 1 in
+    fq, sq @ [ Node (getFrequency l + getFrequency r, l, r) ]
+  in
+  let rec loop fq sq =
+    if List.length fq + List.length sq <> 1
+    then (
+      let fq, sq = aux fq sq in
+      loop fq sq)
+    else if List.is_empty fq
+    then sq
+    else fq
+  in
+  let huffman_tree = loop fs_sorted [] in
+  let table = Hashtbl.create @@ List.length fs in
+  let rec calculateCodes acc tree =
+    match tree with
+    | Leaf (x, _) -> Hashtbl.add table x acc
+    | Node (_, l, r) ->
+      calculateCodes (acc ^ "1") l;
+      calculateCodes (acc ^ "0") r
+  in
+  calculateCodes "" @@ List.hd huffman_tree;
+  List.map (fun (x, _) -> x, Hashtbl.find table x) fs
+;;
